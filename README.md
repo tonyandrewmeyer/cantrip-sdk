@@ -134,7 +134,7 @@ agent to consult.
 
 - [Cantrip documentation](https://tonyandrewmeyer.github.io/cantrip/docs)
 - [Cantrip source](https://github.com/tonyandrewmeyer/cantrip)
-- [Workshop documentation](https://ubuntu.com/workshop/docs/)
+- [Workshop](https://ubuntu.com/workshop)
 
 ---
 
