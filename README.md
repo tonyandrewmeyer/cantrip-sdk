@@ -1,6 +1,6 @@
 # Cantrip SDK for Workshop
 
-This SDK provides [Cantrip](https://github.com/canonical/cantrip) — an
+This SDK provides [Cantrip](https://tonyandrewmeyer.github.io/cantrip) — an
 AI-powered autonomous agent that builds Juju charms — for AI-assisted charm
 authoring within a Workshop. The agent is sandboxed in the workshop container.
 Cantrip state, Juju client state, and GitHub CLI credentials persist between
@@ -132,7 +132,8 @@ agent to consult.
 
 ## Documentation and guidance
 
-- [Cantrip documentation](https://tonyandrewmeyer.github.io/cantrip)
+- [Cantrip documentation](https://tonyandrewmeyer.github.io/cantrip/docs)
+- [Cantrip source](https://github.com/tonyandrewmeyer/cantrip)
 - [Workshop documentation](https://ubuntu.com/workshop/docs/)
 
 ---
