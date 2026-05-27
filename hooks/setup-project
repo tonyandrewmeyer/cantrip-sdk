@@ -3,11 +3,10 @@ set -euo pipefail
 
 mkdir -p /home/workshop/.config/cantrip
 mkdir -p /home/workshop/.local/share/cantrip/uv-tools
-mkdir -p /home/workshop/.local/bin
+mkdir -p /home/workshop/.local/share/cantrip/uv-bin
 chown -R workshop:workshop \
     /home/workshop/.config/cantrip \
-    /home/workshop/.local/share/cantrip \
-    /home/workshop/.local/bin
+    /home/workshop/.local/share/cantrip
 
 # Install juju-cantrip pinned to the SDK's VERSION, but only if missing —
 # subsequent workshop refreshes re-run this hook and we do not want to
@@ -16,7 +15,7 @@ VERSION="$(cat "${SDK}/VERSION")"
 if ! sudo -u workshop --login bash -c 'command -v cantrip >/dev/null 2>&1'; then
     sudo -u workshop --login \
         env "UV_TOOL_DIR=/home/workshop/.local/share/cantrip/uv-tools" \
-            "UV_TOOL_BIN_DIR=/home/workshop/.local/bin" \
+            "UV_TOOL_BIN_DIR=/home/workshop/.local/share/cantrip/uv-bin" \
         "${SDK}/bin/uv" tool install --quiet "juju-cantrip==${VERSION}"
 fi
 

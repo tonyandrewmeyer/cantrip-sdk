@@ -2,12 +2,15 @@
 set -euo pipefail
 
 cat <<EOF >/etc/profile.d/cantrip.sh
-export PATH="${SDK}/bin:\$HOME/.local/bin:\$PATH"
+# Both UV_TOOL_DIR and UV_TOOL_BIN_DIR live inside the persistent cantrip-data
+# mount so the cantrip / charmlint / quickpack shims survive 'workshop refresh'.
+# A bin dir on a non-persistent path (e.g. \$HOME/.local/bin) loses its shims
+# on refresh while uv still considers the tool installed, leaving cantrip
+# unreachable until a force-reinstall.
+export PATH="${SDK}/bin:\$HOME/.local/share/cantrip/uv-bin:\$PATH"
 # Cantrip XDG locations align with the persistent mount plugs declared by the SDK.
 export CANTRIP_CONFIG_HOME=\$HOME/.config/cantrip
 export CANTRIP_DATA_HOME=\$HOME/.local/share/cantrip
-# uv tool data goes under the persistent data mount so 'uv tool install'
-# survives workshop refreshes.
 export UV_TOOL_DIR=\$HOME/.local/share/cantrip/uv-tools
-export UV_TOOL_BIN_DIR=\$HOME/.local/bin
+export UV_TOOL_BIN_DIR=\$HOME/.local/share/cantrip/uv-bin
 EOF
