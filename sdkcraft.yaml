@@ -7,7 +7,7 @@ description: |
   charms independently, for AI-assisted charm authoring within a workshop. The
   agent is sandboxed in the workshop container. Cantrip state, Juju client
   state, and GitHub CLI credentials are persisted between workshop updates.
-license: LGPL-2.1-only
+license: MIT
 build-base: ubuntu@24.04
 platforms:
   amd64:

@@ -141,9 +141,7 @@ agent to consult.
 ## Community and support
 
 - Workshop forum: [Discourse](https://discourse.ubuntu.com/)
-- Please review our
-  [Code of Conduct](https://ubuntu.com/community/ethos/code-of-conduct) before
-  participating.
+- Please review the [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 
 ---
 
@@ -151,14 +149,3 @@ agent to consult.
 
 All contributions, including code, documentation updates, and issue reports,
 are welcome.
-
----
-
-## License and copyright
-
-Copyright 2026 Canonical Ltd.
-
-This program is free software: you can redistribute it and/or modify it under
-the terms of the
-[GNU Lesser General Public License version 2.1 (LGPLv2.1)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
-as published by the Free Software Foundation.
