@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+set -euo pipefail
+
+if [[ ! -x "${SDK}/bin/uv" ]]; then
+    workshopctl set-health --code="uv-not-installed" error "uv runtime not installed."
+    exit 0
+fi
+
+if ! sudo -u workshop --login which cantrip >/dev/null 2>&1; then
+    workshopctl set-health --code="cantrip-not-on-path" error \
+        "Cantrip not available on the \$PATH for the workshop user."
+    exit 0
+fi
+
+# Cantrip without a configured LLM provider is a user-readiness issue (missing
+# ANTHROPIC_API_KEY / GEMINI_API_KEY), not a broken SDK.  Likewise missing
+# 'juju login' against a remote controller — we deliberately do not gate
+# health on either.
+
+workshopctl set-health okay

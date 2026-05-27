@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+set -euo pipefail
+
+cat <<EOF >/etc/profile.d/cantrip.sh
+export PATH="${SDK}/bin:\$HOME/.local/bin:\$PATH"
+# Cantrip XDG locations align with the persistent mount plugs declared by the SDK.
+export CANTRIP_CONFIG_HOME=\$HOME/.config/cantrip
+export CANTRIP_DATA_HOME=\$HOME/.local/share/cantrip
+# uv tool data goes under the persistent data mount so 'uv tool install'
+# survives workshop refreshes.
+export UV_TOOL_DIR=\$HOME/.local/share/cantrip/uv-tools
+export UV_TOOL_BIN_DIR=\$HOME/.local/bin
+EOF

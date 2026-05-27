@@ -1,0 +1,69 @@
+name: cantrip
+title: Cantrip SDK
+adopt-info: cantrip
+summary: Cantrip — autonomous charm-building agent
+description: |
+  This SDK provides Cantrip, an AI-powered autonomous agent that builds Juju
+  charms independently, for AI-assisted charm authoring within a workshop. The
+  agent is sandboxed in the workshop container. Cantrip state, Juju client
+  state, and GitHub CLI credentials are persisted between workshop updates.
+license: LGPL-2.1-only
+build-base: ubuntu@24.04
+platforms:
+  amd64:
+    build-on: [amd64, arm64]
+    build-for: [amd64]
+  arm64:
+    build-on: [amd64, arm64]
+    build-for: [arm64]
+
+plugs:
+  cantrip-config:
+    interface: mount
+    workshop-target: /home/workshop/.config/cantrip
+  cantrip-data:
+    interface: mount
+    workshop-target: /home/workshop/.local/share/cantrip
+  juju-config:
+    interface: mount
+    workshop-target: /home/workshop/.local/share/juju
+  gh-config:
+    interface: mount
+    workshop-target: /home/workshop/.config/gh
+
+parts:
+  cantrip:
+    plugin: nil
+    build-packages:
+      - curl
+      - ca-certificates
+    override-pull: |
+      VERSION="$(cat "$CRAFT_PROJECT_DIR/VERSION")"
+      craftctl set version="$VERSION"
+    override-build: |
+      # uv is the only runtime dependency we install at build time: it manages
+      # its own Python toolchain and installs juju-cantrip as a uv tool on
+      # first launch.  We do not vendor Cantrip itself into the SDK so that
+      # version selection is deterministic per-workshop via the VERSION file.
+      mkdir -p "$CRAFT_PRIME/bin"
+      case "$CRAFT_ARCH_BUILD_FOR" in
+        amd64) UV_TRIPLE="x86_64-unknown-linux-gnu" ;;
+        arm64) UV_TRIPLE="aarch64-unknown-linux-gnu" ;;
+        *) echo "Unsupported architecture: $CRAFT_ARCH_BUILD_FOR" >&2; exit 1 ;;
+      esac
+      UV_VERSION="0.5.11"
+      curl -fsSL -o "$CRAFT_PART_BUILD/uv.tar.gz" \
+        "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-${UV_TRIPLE}.tar.gz"
+      tar -xzf "$CRAFT_PART_BUILD/uv.tar.gz" -C "$CRAFT_PART_BUILD"
+      install -Dm755 "$CRAFT_PART_BUILD/uv-${UV_TRIPLE}/uv" "$CRAFT_PRIME/bin/uv"
+      install -Dm755 "$CRAFT_PART_BUILD/uv-${UV_TRIPLE}/uvx" "$CRAFT_PRIME/bin/uvx"
+
+  version:
+    plugin: dump
+    source: VERSION
+    source-type: file
+
+  workshop-prompt:
+    plugin: dump
+    source: workshop-prompt.md
+    source-type: file

@@ -1,0 +1,6 @@
+*.sdk
+parts/
+prime/
+stage/
+.work/
+__pycache__/
