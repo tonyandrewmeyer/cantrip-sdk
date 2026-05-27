@@ -132,7 +132,7 @@ agent to consult.
 
 ## Documentation and guidance
 
-- [Cantrip documentation](https://github.com/canonical/cantrip/tree/main/docs)
+- [Cantrip documentation](https://tonyandrewmeyer.github.io/cantrip)
 - [Workshop documentation](https://ubuntu.com/workshop/docs/)
 
 ---
