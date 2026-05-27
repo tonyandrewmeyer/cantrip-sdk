@@ -12,6 +12,32 @@ if ! sudo -u workshop --login which cantrip >/dev/null 2>&1; then
     exit 0
 fi
 
+# Each declared mount plug must resolve to a directory owned by the workshop
+# user and writable as that user.  An auto-connection silently going wrong
+# (wrong owner after a refresh, mount missing, read-only bind) shows up as
+# Cantrip failing later in mysterious ways, so surface it here.
+for path in \
+    /home/workshop/.config/cantrip \
+    /home/workshop/.local/share/cantrip \
+    /home/workshop/.local/share/juju \
+    /home/workshop/.config/gh ; do
+    if [[ ! -d "${path}" ]]; then
+        workshopctl set-health --code="mount-target-missing" error \
+            "Mount target missing: ${path}"
+        exit 0
+    fi
+    if [[ "$(stat -c '%U' "${path}")" != "workshop" ]]; then
+        workshopctl set-health --code="mount-target-bad-owner" error \
+            "Mount target ${path} is not owned by the workshop user."
+        exit 0
+    fi
+    if ! sudo -u workshop test -w "${path}"; then
+        workshopctl set-health --code="mount-target-not-writable" error \
+            "Mount target ${path} is not writable by the workshop user."
+        exit 0
+    fi
+done
+
 # Cantrip without a configured LLM provider is a user-readiness issue (missing
 # ANTHROPIC_API_KEY / GEMINI_API_KEY), not a broken SDK.  Likewise missing
 # 'juju login' against a remote controller — we deliberately do not gate
