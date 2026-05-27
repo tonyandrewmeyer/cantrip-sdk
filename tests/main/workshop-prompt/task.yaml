@@ -1,0 +1,21 @@
+summary: setup-project hook seeds the workshop prompt for Cantrip
+
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  # setup-project installs the prompt at ~/.config/cantrip/workshop-prompt.md
+  # on the cantrip-config mount.  Cantrip can ingest it as project memory
+  # once that wiring lands; for now we just verify the seed file is present
+  # and starts with the documented heading.
+  workshop exec -- test -f /home/workshop/.config/cantrip/workshop-prompt.md
+  workshop exec -- head -1 /home/workshop/.config/cantrip/workshop-prompt.md | \
+    MATCH "Cantrip Workshop Environment Instructions"
+
+debug: |
+  workshop exec -- ls -la /home/workshop/.config/cantrip/ || true
+  workshop exec -- cat /home/workshop/.config/cantrip/workshop-prompt.md || true

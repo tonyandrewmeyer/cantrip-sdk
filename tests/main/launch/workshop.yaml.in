@@ -1,0 +1,4 @@
+name: test-cantrip
+base: ${BASE}
+sdks:
+  - name: try-cantrip
