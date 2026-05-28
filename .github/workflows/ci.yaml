@@ -36,6 +36,18 @@ jobs:
           timeout_minutes: 10
           command: sudo snap install sdkcraft --classic
 
+      # sdkcraft test installs Workshop inside the spread test environment
+      # by copying a local snap, rather than fetching from the store — the
+      # public Workshop snap is treated as private until it graduates from
+      # 0.x. Download it once on the runner so sdkcraft can find it.
+      - name: Stage Workshop snap for sdkcraft test
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08  # v3.0.2
+        with:
+          max_attempts: 3
+          retry_wait_seconds: 30
+          timeout_minutes: 5
+          command: snap download workshop --target-directory=tests
+
       # sdkcraft test packs the SDK for the current architecture, copies it
       # into the test environment via sdkcraft try, installs Workshop inside
       # the test environment, and runs the spread suite under tests/.

@@ -4,3 +4,8 @@ prime/
 stage/
 .work/
 __pycache__/
+
+# Workshop snap staged into tests/ for `sdkcraft test`
+# (Workshop is publicly downloadable but sdkcraft expects a local copy).
+tests/workshop_*.snap
+tests/workshop_*.assert
