@@ -36,6 +36,7 @@ for path in \
     fi
 done
 
+# Note: LLM-provider readiness is intentionally not gated below.
 # Cantrip without a configured LLM provider is a user-readiness issue (missing
 # ANTHROPIC_API_KEY / GEMINI_API_KEY), not a broken SDK.  Likewise missing
 # 'juju login' against a remote controller — we deliberately do not gate
