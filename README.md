@@ -112,9 +112,12 @@ This opens an interactive Cantrip session inside the workshop.
   provider key Cantrip supports) inside the workshop. Pass it via
   `workshop run --env`, `workshop exec --env`, or with a tool such as
   [direnv](https://direnv.net/).
-- **Juju:** run `juju login <controller>` inside the workshop. State persists
-  via the `juju-config` plug.
-- **GitHub:** run `gh auth login`. State persists via the `gh-config` plug.
+- **Juju:** if the workshop also declares the upstream `juju` SDK, run
+  `juju login <controller>` inside; state persists via that SDK's
+  `juju-data` mount.  Without the `juju` SDK there's no Juju client
+  installed.
+- **GitHub:** run `gh auth login` after each refresh — no SDK persists
+  this today.
 
 ---
 
@@ -134,27 +137,11 @@ This opens an interactive Cantrip session inside the workshop.
 - Purpose: Cantrip session SQLite DB and the persistent `uv tool` install
   directory.
 
-### `juju-config`
-
-- Interface: `mount`
-- Workshop target: `/home/workshop/.local/share/juju`
-- Purpose: Juju client state — controllers, credentials, models — across
-  workshop refreshes.
-
-### `gh-config`
-
-- Interface: `mount`
-- Workshop target: `/home/workshop/.config/gh`
-- Purpose: GitHub CLI auth and configuration.
-
-To mount your existing host state into the workshop, stop it first, remount,
-then start it again:
-
-```bash
-workshop stop <workshop-name>
-workshop remount <workshop-name>/cantrip:juju-config ~/.local/share/juju
-workshop start <workshop-name>
-```
+> **Not declared by this SDK:** Juju client state (`~/.local/share/juju`)
+> and GitHub CLI auth (`~/.config/gh`). Compose with the upstream `juju`
+> SDK for Juju persistence — it ships a `juju-data` mount at the same
+> path. There is no `gh` SDK in the Workshop catalogue today; `gh auth
+> login` from inside the workshop after each refresh is the workaround.
 
 ## Slots (resources this SDK provides)
 

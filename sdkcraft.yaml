@@ -24,12 +24,11 @@ plugs:
   cantrip-data:
     interface: mount
     workshop-target: /home/workshop/.local/share/cantrip
-  juju-config:
-    interface: mount
-    workshop-target: /home/workshop/.local/share/juju
-  gh-config:
-    interface: mount
-    workshop-target: /home/workshop/.config/gh
+  # Note: Juju client state and GitHub CLI auth are deliberately *not* covered
+  # by this SDK.  Workshops that need Juju persistence compose with the upstream
+  # `juju` SDK (which declares its own `juju-data` mount at the same path);
+  # gh-state persistence is left to a future `gh` SDK or to the user.  See
+  # `design/WORKSHOP_SDK.md §7.3` for the composition model.
 
 parts:
   cantrip:

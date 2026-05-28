@@ -1,4 +1,4 @@
-summary: All four persistent-state mount targets are present and writable
+summary: Both persistent-state mount targets are present and writable
 
 prepare: |
   envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
@@ -8,19 +8,19 @@ restore: |
   workshop remove || true
 
 execute: |
-  # The SDK declares four mount plugs covering Cantrip config/data, Juju
-  # client state, and gh auth.  Each target must exist, be owned by the
-  # workshop user, and survive a write/read round-trip — that's the property
-  # the SDK is promising to consumers, independent of any product on top.
+  # The SDK declares two mount plugs covering Cantrip's own config and data.
+  # Each target must exist, be owned by the workshop user, and survive a
+  # write/read round-trip — that's the property the SDK is promising to
+  # consumers, independent of any product on top.  Juju and gh persistence
+  # are intentionally delegated to the upstream `juju` / future `gh` SDK
+  # (see design/WORKSHOP_SDK.md §7.3).
   for path in \
       /home/workshop/.config/cantrip \
-      /home/workshop/.local/share/cantrip \
-      /home/workshop/.local/share/juju \
-      /home/workshop/.config/gh ; do
+      /home/workshop/.local/share/cantrip ; do
     workshop exec -- bash -lc "test -d '$path'"
     workshop exec -- bash -lc "stat -c '%U' '$path'" | MATCH "^workshop$"
     workshop exec -- bash -lc "touch '$path/.spread-probe' && rm '$path/.spread-probe'"
   done
 
 debug: |
-  workshop exec -- ls -la /home/workshop/.config /home/workshop/.local/share || true
+  workshop exec -- ls -la /home/workshop/.config /home/workshop/.local/share/cantrip || true

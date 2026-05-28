@@ -18,9 +18,7 @@ fi
 # Cantrip failing later in mysterious ways, so surface it here.
 for path in \
     /home/workshop/.config/cantrip \
-    /home/workshop/.local/share/cantrip \
-    /home/workshop/.local/share/juju \
-    /home/workshop/.config/gh ; do
+    /home/workshop/.local/share/cantrip ; do
     if [[ ! -d "${path}" ]]; then
         workshopctl set-health --code="mount-target-missing" error \
             "Mount target missing: ${path}"

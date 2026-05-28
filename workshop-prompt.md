@@ -26,8 +26,11 @@ The SDK declares mount plugs that survive workshop refresh:
 
 - `~/.config/cantrip` — Cantrip configuration, memory, transcripts
 - `~/.local/share/cantrip` — Cantrip session DB, uv tool installs
-- `~/.local/share/juju` — Juju client state (controllers, credentials)
-- `~/.config/gh` — GitHub CLI auth and config
+
+Juju client state (`~/.local/share/juju`) is **not** mounted by this
+SDK; if the workshop also declares the `juju` SDK it provides its own
+`juju-data` mount at the same path. GitHub CLI state is not persisted
+by any SDK today.
 
 LLM provider keys (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, …) are **not**
 persisted by the SDK. Pass them via `workshop exec --env` or set them in your
