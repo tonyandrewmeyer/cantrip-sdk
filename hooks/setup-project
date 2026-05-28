@@ -11,12 +11,15 @@ chown -R workshop:workshop \
 # Install juju-cantrip pinned to the SDK's VERSION, but only if missing —
 # subsequent workshop refreshes re-run this hook and we do not want to
 # clobber a user's pinned or sideloaded install.
+# --python 3.12 forces uv to use (and auto-download) a managed Python 3.12;
+# the system Python on jammy is 3.10, which juju-cantrip's requires-python
+# rejects.
 VERSION="$(cat "${SDK}/VERSION")"
 if ! sudo -u workshop --login bash -c 'command -v cantrip >/dev/null 2>&1'; then
     sudo -u workshop --login \
         env "UV_TOOL_DIR=/home/workshop/.local/share/cantrip/uv-tools" \
             "UV_TOOL_BIN_DIR=/home/workshop/.local/share/cantrip/uv-bin" \
-        "${SDK}/bin/uv" tool install --quiet "juju-cantrip==${VERSION}"
+        "${SDK}/bin/uv" tool install --quiet --python 3.12 "juju-cantrip==${VERSION}"
 fi
 
 # Conditionally write workshop-prompt.md — do not overwrite if user already has
