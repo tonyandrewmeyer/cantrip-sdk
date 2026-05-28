@@ -12,5 +12,16 @@ execute: |
   EXPECTED_REGEX="${EXPECTED_VERSION//./\\.}"
   workshop exec -- bash -lc 'cantrip --version' | MATCH "$EXPECTED_REGEX"
 
+  # cantrip's interpreter must sit on a path that survives 'workshop refresh':
+  # either the base image's system Python or the managed CPython we pin into
+  # the cantrip-data mount via UV_PYTHON_INSTALL_DIR.  It must NOT come from
+  # uv's default ~/.local/share/uv/python, which a refresh would wipe while the
+  # shim survives — leaving setup-project's 'command -v cantrip' guard to skip
+  # reinstall and cantrip unable to start.  Asserting the default dir is absent
+  # or empty captures this on every base: noble reuses its system 3.12 (nothing
+  # downloaded), while jammy/resolute land their managed 3.12 in the mount.
+  workshop exec -- bash -lc '! test -d "$HOME/.local/share/uv/python" || test -z "$(ls -A "$HOME/.local/share/uv/python")"'
+
 debug: |
   workshop exec -- bash -lc 'cantrip --version' || true
+  workshop exec -- bash -lc 'ls -la "$HOME/.local/share/cantrip/uv-python"' || true

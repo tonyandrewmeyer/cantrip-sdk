@@ -2,15 +2,21 @@
 set -euo pipefail
 
 cat <<EOF >/etc/profile.d/cantrip.sh
-# Both UV_TOOL_DIR and UV_TOOL_BIN_DIR live inside the persistent cantrip-data
-# mount so the cantrip / charmlint / quickpack shims survive 'workshop refresh'.
-# A bin dir on a non-persistent path (e.g. \$HOME/.local/bin) loses its shims
-# on refresh while uv still considers the tool installed, leaving cantrip
-# unreachable until a force-reinstall.
+# UV_TOOL_DIR, UV_TOOL_BIN_DIR and UV_PYTHON_INSTALL_DIR all live inside the
+# persistent cantrip-data mount so the cantrip / charmlint / quickpack shims
+# *and* the managed CPython they run on survive 'workshop refresh'.  A bin dir
+# on a non-persistent path (e.g. \$HOME/.local/bin) loses its shims on refresh
+# while uv still considers the tool installed, leaving cantrip unreachable
+# until a force-reinstall.  Likewise, if the managed interpreter under uv's
+# default \$HOME/.local/share/uv/python is wiped on refresh, the surviving
+# shim points at a missing Python and cantrip fails to start — yet the
+# 'command -v cantrip' guard in setup-project still skips reinstall.  Pinning
+# the install dir into the mount keeps the interpreter alongside its venv.
 export PATH="${SDK}/bin:\$HOME/.local/share/cantrip/uv-bin:\$PATH"
 # Cantrip XDG locations align with the persistent mount plugs declared by the SDK.
 export CANTRIP_CONFIG_HOME=\$HOME/.config/cantrip
 export CANTRIP_DATA_HOME=\$HOME/.local/share/cantrip
 export UV_TOOL_DIR=\$HOME/.local/share/cantrip/uv-tools
 export UV_TOOL_BIN_DIR=\$HOME/.local/share/cantrip/uv-bin
+export UV_PYTHON_INSTALL_DIR=\$HOME/.local/share/cantrip/uv-python
 EOF
