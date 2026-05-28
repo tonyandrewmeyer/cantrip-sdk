@@ -28,50 +28,61 @@ This creates a basic Cantrip charm-authoring environment. The agent is
 sandboxed by the workshop, so it runs against the mounted project tree
 (at `/project`) without host access.
 
-### Authoring + remote Juju controller
+### Authoring against an existing host Juju controller (verified)
 
-A more realistic charm-authoring workshop composes Cantrip with the
-`juju` SDK and binds its `controller` tunnel plug to a Juju controller
-that lives on the host (or in a dedicated VM). Local controller
-bootstrap is not supported by Workshop today — see the upstream Charm
-Tech analysis under `docs/findings.md` of the
-[`charm-tech-workshop`](https://github.com/canonical/charm-tech-workshop)
-research repo.
+A realistic charm-authoring workshop composes Cantrip with the upstream
+`juju` SDK and shares the host's Juju client state into the workshop.
+Local controller bootstrap is **not** supported by Workshop today (see
+the upstream Charm Tech analysis under `docs/findings.md` of the
+`charm-tech-workshop` research repo).
 
 ```yaml
 # workshop.yaml
 name: cantrip-juju
 base: ubuntu@24.04
 sdks:
-  # Expose the host's Juju controller API to the workshop via a tunnel slot.
-  - name: system
-    slots:
-      controller-api:
-        interface: tunnel
-        endpoint: 17070
   - name: cantrip
   - name: juju
 
 actions:
-  bind: |
-    # system-SDK tunnel slots are NOT auto-connected from `connections:`
-    # (Workshop security policy). Run this once after `workshop launch`.
-    workshop connect cantrip-juju/juju:controller cantrip-juju/system:controller-api
-  cantrip: cantrip "$@"
+  juju-controllers: juju controllers
+  juju-status: juju status -m <controller>:<model>
 ```
 
-Then, inside the workshop:
+There are two ways to give the workshop access to the controller:
+
+**Default LXD bridge — no tunnel needed.** If the host's Juju
+controller is itself an LXD container (i.e. a `juju bootstrap
+localhost` controller on the same machine), it's already reachable
+from the workshop on the LXD bridge. Verified: `nc -zv <controller-ip>
+17070` succeeds from inside the workshop with no `connect`
+plumbing.
+
+**Tunnel plug for off-bridge controllers.** If the controller lives
+on a different host or on `localhost` (not on the LXD bridge), declare
+a `system:` tunnel slot and bind the `juju` SDK's `controller` plug to
+it. `system`-SDK tunnel slots are not auto-connected, so this needs a
+manual `workshop connect` step (or wrap it in a workshop action) —
+putting the bind in `connections:` is silently ignored.
+
+After launch, share the host's Juju client state into the workshop so
+controller registrations are visible:
 
 ```bash
-workshop run bind                # connect the tunnel
-workshop shell
-juju register <controller>       # or: juju login <controller>
-cantrip
+workshop stop
+workshop remount cantrip-juju/juju:juju-data ~/.local/share/juju
+workshop start
+
+# Verify the host controllers are visible inside:
+workshop run -- juju-controllers
+workshop run -- juju-status
 ```
 
-The Juju client state lives on the `juju-data` mount and survives
-`workshop refresh`. Cantrip's own state (config, memory, sessions)
-lives on the `cantrip-config` and `cantrip-data` mounts.
+The `juju-data` mount is owned by the upstream `juju` SDK (this SDK
+deliberately does not declare a `juju-config` mount — see §7.3 of
+`design/WORKSHOP_SDK.md` for the composition rationale).
+Cantrip's own state (config, memory, sessions) lives on the
+`cantrip-config` and `cantrip-data` mounts.
 
 ### Adding charm packaging
 
