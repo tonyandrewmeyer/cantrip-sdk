@@ -7,10 +7,17 @@ container with restricted host access. This is not a VM and not the host.
 
 **Critical constraints:**
 
-- No nested LXD, no host LXD socket, no Juju controller bootstrap inside the
-  workshop. Local-controller workflows are unsafe here.
-- Hardware (display, GPU, audio, USB) is unavailable unless an explicit plug
-  has been connected.
+- The project tree is mounted at `/project` (read-write; changes are
+  shared with the host).
+- `juju bootstrap localhost` and Canonical Kubernetes do **not** work
+  inside a Workshop today (confirmed empirically — the controller
+  machine is an LXD container at nesting depth 2 where snapd does not
+  start). Local-controller workflows are unavailable.
+- Nested LXD itself *does* work (`security.nesting=true` is the default)
+  and is usable for `charmcraft pack` LXD-provider mode and for
+  rockcraft — just not for hosting a Juju controller.
+- Hardware (display, GPU, audio, USB) is unavailable unless an explicit
+  plug has been connected.
 - You cannot modify the workshop's container configuration.
 
 ## Persistent state
@@ -30,10 +37,18 @@ shell.
 
 The workshop is **remote-controller-first**:
 
-- Use `juju login` against an already-available controller.
-- Run `juju status`, `juju deploy`, `juju refresh` etc. as a Juju **client**.
-- Do not attempt to bootstrap a local controller — the workshop's interface
-  model does not currently expose a first-class path for that.
+- Use `juju login` (or `juju register`) against an already-available
+  controller. The controller typically lives on the host or in a
+  dedicated VM and is reached via a tunnel plug.
+- Run `juju status`, `juju deploy`, `juju refresh` etc. as a Juju
+  **client**.
+- Do not attempt `juju bootstrap localhost` — it will fail at the
+  `juju-db` install step inside the nested LXD container.
+- If the workshop declares a `juju:controller` tunnel plug to a
+  `system:` tunnel slot, the binding is **not** auto-connected —
+  `system`-SDK tunnel slots require a manual `workshop connect`
+  (Workshop security policy). The workshop definition should expose
+  this as a named action so the user can run it once after launch.
 
 ## Resource-access protocol
 

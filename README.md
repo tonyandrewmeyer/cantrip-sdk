@@ -8,9 +8,9 @@ workshop refreshes.
 
 ---
 
-## Reference workshop
+## Reference workshops
 
-A minimal workshop:
+### Minimal — Cantrip only, no Juju
 
 ```yaml
 # workshop.yaml
@@ -25,8 +25,61 @@ actions:
 ```
 
 This creates a basic Cantrip charm-authoring environment. The agent is
-sandboxed by the workshop, so it runs against the mounted project tree without
-host access.
+sandboxed by the workshop, so it runs against the mounted project tree
+(at `/project`) without host access.
+
+### Authoring + remote Juju controller
+
+A more realistic charm-authoring workshop composes Cantrip with the
+`juju` SDK and binds its `controller` tunnel plug to a Juju controller
+that lives on the host (or in a dedicated VM). Local controller
+bootstrap is not supported by Workshop today — see the upstream Charm
+Tech analysis under `docs/findings.md` of the
+[`charm-tech-workshop`](https://github.com/canonical/charm-tech-workshop)
+research repo.
+
+```yaml
+# workshop.yaml
+name: cantrip-juju
+base: ubuntu@24.04
+sdks:
+  # Expose the host's Juju controller API to the workshop via a tunnel slot.
+  - name: system
+    slots:
+      controller-api:
+        interface: tunnel
+        endpoint: 17070
+  - name: cantrip
+  - name: juju
+
+actions:
+  bind: |
+    # system-SDK tunnel slots are NOT auto-connected from `connections:`
+    # (Workshop security policy). Run this once after `workshop launch`.
+    workshop connect cantrip-juju/juju:controller cantrip-juju/system:controller-api
+  cantrip: cantrip "$@"
+```
+
+Then, inside the workshop:
+
+```bash
+workshop run bind                # connect the tunnel
+workshop shell
+juju register <controller>       # or: juju login <controller>
+cantrip
+```
+
+The Juju client state lives on the `juju-data` mount and survives
+`workshop refresh`. Cantrip's own state (config, memory, sessions)
+lives on the `cantrip-config` and `cantrip-data` mounts.
+
+### Adding charm packaging
+
+To `charmcraft pack` from inside the workshop, declare the `charmcraft`
+SDK as well. Packing runs in `--destructive-mode` (i.e. directly in the
+workshop, no nested build VM), so the workshop `base` **must match the
+charm's `build-on` base** — multi-base charms need either the nested
+`lxd` SDK (LXD-provider mode) or one workshop per base.
 
 ---
 
