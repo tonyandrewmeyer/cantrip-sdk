@@ -29,7 +29,7 @@ jobs:
           channel: 6/stable
 
       - name: Install sdkcraft
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08  # v3.0.2
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60  # v4.0.0
         with:
           max_attempts: 3
           retry_wait_seconds: 60
@@ -41,7 +41,7 @@ jobs:
       # public Workshop snap is treated as private until it graduates from
       # 0.x. Download it once on the runner so sdkcraft can find it.
       - name: Stage Workshop snap for sdkcraft test
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08  # v3.0.2
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60  # v4.0.0
         with:
           max_attempts: 3
           retry_wait_seconds: 30
@@ -52,7 +52,7 @@ jobs:
       # into the test environment via sdkcraft try, installs Workshop inside
       # the test environment, and runs the spread suite under tests/.
       - name: Run spread tests
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08  # v3.0.2
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60  # v4.0.0
         with:
           max_attempts: 2
           retry_wait_seconds: 30
